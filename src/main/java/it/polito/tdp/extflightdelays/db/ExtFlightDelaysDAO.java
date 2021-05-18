@@ -10,6 +10,7 @@ import java.util.List;
 
 import it.polito.tdp.extflightdelays.model.Airline;
 import it.polito.tdp.extflightdelays.model.Airport;
+import it.polito.tdp.extflightdelays.model.Arco;
 import it.polito.tdp.extflightdelays.model.Flight;
 
 public class ExtFlightDelaysDAO {
@@ -90,5 +91,32 @@ public class ExtFlightDelaysDAO {
 			System.out.println("Errore connessione al database");
 			throw new RuntimeException("Error Connection Database");
 		}
+	}
+	
+	public List<Arco> getArco(){
+		
+		String sql = "SELECT  origin_airport_id, destination_airport_id, SUM(distance)/COUNT(*) AS MediaDistance "
+				+" FROM flights GROUP BY origin_airport_id,destination_airport_id ";
+		List<Arco> result = new LinkedList<Arco>();
+		
+		try {
+			Connection conn = ConnectDB.getConnection();
+			PreparedStatement st = conn.prepareStatement(sql);
+			ResultSet rs = st.executeQuery();
+
+			while (rs.next()) {
+				Arco flight = new Arco(rs.getInt("origin_airport_id"),rs.getInt("destination_airport_id"),rs.getInt("MediaDistance"));
+				result.add(flight);
+			}
+
+			conn.close();
+			return result;
+
+		} catch (SQLException e) {
+			e.printStackTrace();
+			System.out.println("Errore connessione al database");
+			throw new RuntimeException("Error Connection Database");
+		}
+	
 	}
 }
